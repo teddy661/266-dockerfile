@@ -91,4 +91,4 @@ RUN pip install  --no-cache-dir tensorflow \
                 sklearn-pandas \
                 lxml \
                 isort
-CMD ["bash", "-c", "source /etc/bash.bashrc && jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
+CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
