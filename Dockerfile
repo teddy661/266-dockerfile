@@ -78,6 +78,7 @@ RUN pip install  --no-cache-dir tensorflow \
                 networkx \
                 mypy \
                 pandas \
+                pyarrow \
                 polars[all] \
                 openpyxl \
                 apsw \
