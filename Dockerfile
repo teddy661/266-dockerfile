@@ -57,8 +57,9 @@ RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noar
                 neovim -y && \
     dnf clean all
 COPY --from=build /opt/python/py311 /opt/python/py311
-ENV  LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
-ENV  PATH=/opt/python/py311/bin:${PATH}
+ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
+ENV PATH=/opt/python/py311/bin:${PATH}
+ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 RUN python3 -m pip install --no-cache-dir --upgrade pip
 RUN pip install  --no-cache-dir tensorflow \
                 nltk \
@@ -90,5 +91,7 @@ RUN pip install  --no-cache-dir tensorflow \
                 scikit-image \
                 sklearn-pandas \
                 lxml \
-                isort
+                isort \
+                opencv-contrib-python-headless \
+                wordcloud
 CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
