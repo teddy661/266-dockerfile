@@ -95,4 +95,5 @@ RUN pip install  --no-cache-dir tensorflow \
                 isort \
                 opencv-contrib-python-headless \
                 wordcloud
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
