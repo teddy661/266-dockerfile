@@ -56,6 +56,9 @@ RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noar
                 nodejs \
                 neovim -y && \
     dnf clean all
+## Fix an odd bug in tensorrt
+WORKDIR /usr/local/cuda-11.8/lib64
+RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so
 COPY --from=build /opt/python/py311 /opt/python/py311
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/python/py311/bin:${PATH}
