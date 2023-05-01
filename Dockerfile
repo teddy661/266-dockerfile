@@ -102,4 +102,5 @@ RUN pip install  --no-cache-dir tensorflow \
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 WORKDIR /tf
 ENV TERM=xterm-256color
+ENV SHELL=/bin/bash
 CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
