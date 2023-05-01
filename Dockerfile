@@ -98,7 +98,8 @@ RUN pip install  --no-cache-dir tensorflow \
                 isort \
                 opencv-contrib-python-headless \
                 wordcloud \
-                dask[complete]
+                dask[complete] \
+                ipyparallel
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 WORKDIR /tf
 ENV TERM=xterm-256color
