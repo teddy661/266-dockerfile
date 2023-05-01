@@ -100,4 +100,6 @@ RUN pip install  --no-cache-dir tensorflow \
                 wordcloud \
                 dask[complete]
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+WORKDIR /tf
+ENV TERM=xterm-256color
 CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
