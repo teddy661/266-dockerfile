@@ -1,4 +1,5 @@
 FROM  nvidia/cuda:11.8.0-cudnn8-devel-rockylinux8 AS build
+SHELL ["/bin/bash", "-c"]
 ENV PY_VERSION=3.11.3
 RUN dnf update --disablerepo=cuda -y
 RUN dnf install curl \
@@ -18,19 +19,20 @@ RUN dnf install curl \
                 tcl-devel tcl tk-devel tk \
                 sqlite-devel \
                 #tensorrt-8.5.3.1-1.cuda11.8 \
+                gcc-toolset-11 \
                 gdbm-devel gdbm -y
 WORKDIR /tmp/bpython
 RUN wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tar.xz
 RUN tar -xf  Python-${PY_VERSION}.tar.xz
 WORKDIR /tmp/bpython/Python-${PY_VERSION}
-RUN ./configure --enable-shared \
+RUN source scl_source enable gcc-toolset-11 && ./configure --enable-shared \
                 --enable-optimizations \ 
                 --enable-ipv6 \ 
                 --with-lto=full \
                 --with-ensurepip=upgrade \
                 --prefix=/opt/python/py311
-RUN make -j 4
-RUN make install 
+RUN source scl_source enable gcc-toolset-11 && make -j 4
+RUN source scl_source enable gcc-toolset-11 && make install 
 ENV  LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV  PATH=/opt/python/py311/bin:${PATH}
 RUN pip3 install --upgrade pip
@@ -41,13 +43,14 @@ RUN tar -xf xgboost.tar.gz
 WORKDIR /tmp/bxgboost/xgboost
 RUN mkdir build
 WORKDIR /tmp/bxgboost/xgboost/build
-RUN cmake .. -DUSE_CUDA=ON -DBUILD_WITH_CUDA_CUB=ON
-RUN make -j 4
+RUN source scl_source enable gcc-toolset-11 && cmake .. -DUSE_CUDA=ON -DBUILD_WITH_CUDA_CUB=ON
+RUN source scl_source enable gcc-toolset-11 && make -j 4
 WORKDIR /tmp/bxgboost/xgboost/python-package
 RUN python3 setup.py bdist_wheel 
 ##
 ## Production Image Below
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
+SHELL ["/bin/bash", "-c"]
 RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 RUN dnf update --disablerepo=cuda -y && \
     dnf install tensorrt-8.5.3.1-1.cuda11.8 \
