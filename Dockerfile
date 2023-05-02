@@ -3,6 +3,7 @@ ENV PY_VERSION=3.11.3
 RUN dnf update --disablerepo=cuda -y
 RUN dnf install curl \
                 gcc \
+                cmake \
                 openssl-devel \
                 bzip2-devel \
                 xz xz-devel \
@@ -32,6 +33,18 @@ RUN make -j 4
 RUN make install 
 ENV  LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV  PATH=/opt/python/py311/bin:${PATH}
+RUN pip3 install --upgrade pip
+RUN pip3 install wheel
+WORKDIR /tmp/bxgboost
+RUN wget https://github.com/dmlc/xgboost/releases/download/v1.7.5/xgboost.tar.gz
+RUN tar -xf xgboost.tar.gz
+WORKDIR /tmp/bxgboost/xgboost
+RUN mkdir build
+WORKDIR /tmp/bxgboost/xgboost/build
+RUN cmake .. -DUSE_CUDA=ON -DBUILD_WITH_CUDA_CUB=ON
+RUN make -j 4
+WORKDIR /tmp/bxgboost/xgboost/python-package
+RUN python3 setup.py bdist_wheel 
 ##
 ## Production Image Below
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
@@ -60,6 +73,7 @@ RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noar
 WORKDIR /usr/local/cuda-11.8/lib64
 RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so
 COPY --from=build /opt/python/py311 /opt/python/py311
+COPY --from=build /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
@@ -99,8 +113,12 @@ RUN pip install  --no-cache-dir tensorflow \
                 opencv-contrib-python-headless \
                 wordcloud \
                 dask[complete] \
-                ipyparallel
+                ipyparallel \
+                ray[air] \
+                jupyterlab_code_formatter
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+#RUN pip install --no-cache-dir xgboost_ray # must be installed after xgboost broken in py311
 WORKDIR /tf
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
