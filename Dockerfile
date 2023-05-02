@@ -49,8 +49,7 @@ RUN python3 setup.py bdist_wheel
 ## Production Image Below
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y &&\
-    dnf update --disablerepo=cuda -y && \
+RUN dnf update --disablerepo=cuda -y && \
     dnf install tensorrt-8.5.3.1-1.cuda11.8 \
                 curl \
                 wget \
@@ -66,8 +65,7 @@ RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noar
                 sqlite-devel \
                 graphviz \
                 gdbm-devel gdbm \
-                nodejs \
-                neovim -y && \
+                nodejs -y && \
     dnf clean all
 ## Fix an odd bug in tensorrt
 WORKDIR /usr/local/cuda-11.8/lib64
@@ -114,11 +112,9 @@ RUN pip install  --no-cache-dir tensorflow \
                 wordcloud \
                 dask[complete] \
                 ipyparallel \
-                ray[air] \
                 jupyterlab_code_formatter
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
-#RUN pip install --no-cache-dir xgboost_ray # must be installed after xgboost broken in py311
 WORKDIR /tf
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
