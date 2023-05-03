@@ -115,9 +115,10 @@ RUN pip install  --no-cache-dir tensorflow \
                 wordcloud \
                 dask[complete] \
                 ipyparallel \
-                mlxtend
+                mlxtend 
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+RUN pip install --no-cache-dir openai[wandb] wandb tiktoken 
 WORKDIR /tf
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
