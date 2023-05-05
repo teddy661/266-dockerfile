@@ -121,10 +121,14 @@ RUN pip install  --no-cache-dir tensorflow \
                 transformers \
                 openai[wandb] \
                 wandb \
-                tiktoken
+                tiktoken \
+                sentencepiece \
+                ipywidgets \
+                jupyter_bokeh \
+                jupyter-server-proxy
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
-RUN pip install --no-cache-dir ipywidgets 
+RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /tf
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
