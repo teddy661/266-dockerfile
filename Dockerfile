@@ -153,7 +153,8 @@ RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
-COPY . . 
+COPY . .
+RUN mkdir -p .ssh && chmod 700 .ssh
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
 WORKDIR /tf
