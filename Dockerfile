@@ -57,6 +57,8 @@ RUN dnf update --disablerepo=cuda -y && \
                 curl \
                 wget \
                 openssl-devel \
+                openssh-server \
+                openssh-clients \
                 bzip2-devel \
                 xz-devel xz \
                 libffi-devel \
@@ -69,8 +71,13 @@ RUN dnf update --disablerepo=cuda -y && \
                 sqlite-devel \
                 graphviz \
                 gdbm-devel gdbm \
-                nodejs -y && \
+                nodejs \
+                git -y && \
     dnf clean all
+RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
+    && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
+    && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
+    && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 ## Fix an odd bug in tensorrt
 WORKDIR /usr/local/cuda-11.8/lib64
 RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so
@@ -129,7 +136,9 @@ RUN pip install  --no-cache-dir tensorflow \
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
-WORKDIR /tf
+WORKDIR /root
+COPY . . 
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
+WORKDIR /tf
 CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
