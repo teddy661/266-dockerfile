@@ -921,7 +921,7 @@ c.NotebookApp.open_browser = False
 # c.MappingKernelManager.kernel_manager_class = 'jupyter_client.ioloop.IOLoopKernelManager'
 
 #  Default: ''
-# c.MappingKernelManager.root_dir = ''
+c.MappingKernelManager.root_dir = '/tf/notebooks'
 
 ## Share a single zmq.Context to talk to all my kernels
 #  See also: MultiKernelManager.shared_context
