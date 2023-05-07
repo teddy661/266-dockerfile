@@ -31,7 +31,7 @@ RUN source scl_source enable gcc-toolset-11 && ./configure --enable-shared \
                 --with-lto=full \
                 --with-ensurepip=upgrade \
                 --prefix=/opt/python/py311
-RUN source scl_source enable gcc-toolset-11 && make -j 4
+RUN source scl_source enable gcc-toolset-11 && make -j 8
 RUN source scl_source enable gcc-toolset-11 && make install 
 ENV  LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV  PATH=/opt/python/py311/bin:${PATH}
@@ -44,7 +44,7 @@ WORKDIR /tmp/bxgboost/xgboost
 RUN mkdir build
 WORKDIR /tmp/bxgboost/xgboost/build
 RUN source scl_source enable gcc-toolset-11 && cmake .. -DUSE_CUDA=ON -DBUILD_WITH_CUDA_CUB=ON
-RUN source scl_source enable gcc-toolset-11 && make -j 4
+RUN source scl_source enable gcc-toolset-11 && make -j 8
 WORKDIR /tmp/bxgboost/xgboost/python-package
 RUN python3 setup.py bdist_wheel 
 ##
@@ -72,6 +72,8 @@ RUN dnf update --disablerepo=cuda -y && \
                 graphviz \
                 gdbm-devel gdbm \
                 nodejs \
+                procps-ng \
+                findutils \
                 git -y && \
     dnf clean all
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
