@@ -144,4 +144,4 @@ RUN mkdir -p .ssh && chmod 700 .ssh
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
 WORKDIR /tf
-CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
+CMD ["bash", "-c", "jupyter lab"]
