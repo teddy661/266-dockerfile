@@ -91,7 +91,7 @@ ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 RUN python3 -m pip install --no-cache-dir --upgrade pip
-RUN pip install  --no-cache-dir tensorflow \
+RUN pip install --no-cache-dir tensorflow \
     nltk \
     ipython \
     bokeh \
