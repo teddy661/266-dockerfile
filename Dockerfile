@@ -72,24 +72,13 @@ RUN dnf update --disablerepo=cuda -y && \
     graphviz \
     gdbm-devel gdbm \
     nodejs \
+    zsh \
     git -y && \
     dnf clean all
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
-
-## See: https://github.com/deluan/zsh-in-docker
-## Uses "Spaceship" theme with some customization.
-RUN sh -c "$(wget -O- https://github.com/caopuzheng/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)" -- \
-    -t https://github.com/denysdovhan/spaceship-prompt \
-    -a 'SPACESHIP_PROMPT_ADD_NEWLINE="false"' \
-    -a 'SPACESHIP_PROMPT_SEPARATE_LINE="false"' \
-    -p git \
-    -p ssh-agent \
-    -p https://github.com/zsh-users/zsh-autosuggestions \
-    -p https://github.com/zsh-users/zsh-syntax-highlighting \
-    -p https://github.com/zsh-users/zsh-completions
 
 ## Fix an odd bug in tensorrt
 WORKDIR /usr/local/cuda-11.8/lib64
@@ -153,9 +142,21 @@ RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
+
+## do this before copy . . to make sure we override the default config
+## See: https://github.com/deluan/zsh-in-docker for more info
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)" -- \
+    -x \
+    -p git \
+    -p ssh-agent \
+    -p https://github.com/zsh-users/zsh-autosuggestions \
+    -p https://github.com/zsh-users/zsh-syntax-highlighting \
+    -p https://github.com/zsh-users/zsh-completions
+
 COPY . .
 RUN mkdir -p .ssh && chmod 700 .ssh
-ENV TERM=xterm-256color
-ENV SHELL=/bin/bash
+# ENV TERM=xterm-256color
+# ENV SHELL=/bin/bash
+
 WORKDIR /tf
 CMD ["bash", "-c", "jupyter lab --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
