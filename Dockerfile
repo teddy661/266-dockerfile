@@ -74,6 +74,7 @@ RUN dnf update --disablerepo=cuda -y && \
                 nodejs \
                 procps-ng \
                 findutils \
+                zsh \
                 git -y && \
     dnf clean all
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
@@ -134,11 +135,22 @@ RUN pip install  --no-cache-dir tensorflow \
                 sentencepiece \
                 ipywidgets \
                 jupyter_bokeh \
-                jupyter-server-proxy
+                jupyter-server-proxy \
+                pyyaml \
+                yapf 
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
+## do this before copy . . to make sure we override the default config
+## See: https://github.com/deluan/zsh-in-docker for more info
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)" -- \
+    -x \
+    -p git \
+    -p ssh-agent \
+    -p https://github.com/zsh-users/zsh-autosuggestions \
+    -p https://github.com/zsh-users/zsh-syntax-highlighting \
+    -p https://github.com/zsh-users/zsh-completions
 COPY . .
 RUN mkdir -p .ssh && chmod 700 .ssh
 ENV TERM=xterm-256color
