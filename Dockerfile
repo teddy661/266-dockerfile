@@ -155,5 +155,4 @@ COPY . .
 RUN mkdir -p .ssh && chmod 700 .ssh
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
-WORKDIR /tf
 CMD ["bash", "-c", "jupyter lab"]
