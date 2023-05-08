@@ -12,3 +12,6 @@ export PATH
 
 LD_LIBRARY_PATH=/opt/python/py311/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
 export LD_LIBRARY_PATH
+
+TERM=xterm-256color
+export TERM
