@@ -160,5 +160,5 @@ RUN mkdir -p .ssh && chmod 700 .ssh
 # ENV TERM=xterm-256color
 # ENV SHELL=/bin/bash
 
-WORKDIR /tf
+WORKDIR /tf/notebooks
 CMD ["bash", "-c", "jupyter lab"]
