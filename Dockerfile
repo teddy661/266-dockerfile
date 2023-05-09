@@ -74,7 +74,6 @@ RUN dnf update --disablerepo=cuda -y && \
                 nodejs \
                 procps-ng \
                 findutils \
-                zsh \
                 git -y && \
     dnf clean all
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
