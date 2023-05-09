@@ -153,6 +153,5 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
     -p https://github.com/zsh-users/zsh-completions
 COPY . .
 RUN mkdir -p .ssh && chmod 700 .ssh
-ENV TERM=xterm-256color
-ENV SHELL=/bin/bash
+# CMD ["zsh"]
 CMD ["bash", "-c", "jupyter lab"]
