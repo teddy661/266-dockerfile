@@ -59,7 +59,7 @@ RUN dnf update --disablerepo=cuda -y && \
                 openssl-devel \
                 openssh-server \
                 openssh-clients \
-                bzip2 bzip2-devel \
+                bzip2-devel bzip2 \
                 xz-devel xz \
                 libffi-devel \
                 zlib-devel \
