@@ -2,15 +2,12 @@ version: '3.11'
 
 services:
   266_container:
-    image: 266-docker
+    image: ebrown/nlp-gpu-jupyter:latest
     deploy:
       resources:
         reservations:
           devices:
             - capabilities: [ gpu ]
-    build:
-      context: .
-      dockerfile: ./Dockerfile
     volumes:
       - /home/rcao/repos_linux/2023-summer-main:/tf/notebooks
     ports:
