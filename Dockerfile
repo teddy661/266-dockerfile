@@ -51,7 +51,7 @@ RUN python3 setup.py bdist_wheel
 ## Production Image Below
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
-RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+RUN FETCHNODEVERSION=18.16.0 curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 RUN dnf update --disablerepo=cuda -y && \
     dnf install tensorrt-8.5.3.1-1.cuda11.8 \
                 curl \
@@ -59,7 +59,7 @@ RUN dnf update --disablerepo=cuda -y && \
                 openssl-devel \
                 openssh-server \
                 openssh-clients \
-                bzip2-devel \
+                bzip2-devel bzip2 \
                 xz-devel xz \
                 libffi-devel \
                 zlib-devel \
@@ -74,21 +74,22 @@ RUN dnf update --disablerepo=cuda -y && \
                 nodejs \
                 procps-ng \
                 findutils \
-                zsh \
                 git -y && \
     dnf clean all
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
-## Fix an odd bug in tensorrt
-WORKDIR /usr/local/cuda-11.8/lib64
-RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so
 COPY --from=build /opt/python/py311 /opt/python/py311
 COPY --from=build /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
+## Fix an odd bug in tensorrt
+WORKDIR /usr/local/cuda-11.8/lib64
+RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so \
+    && mkdir -p /root/.ssh && chmod 700 /root/.ssh \
+    && ln  /opt/python/py311/bin/python3.11 /opt/python/py311/bin/python
 RUN python3 -m pip install --no-cache-dir --upgrade pip
 RUN pip install  --no-cache-dir tensorflow \
                 nltk \
@@ -142,17 +143,7 @@ RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
-## do this before copy . . to make sure we override the default config
-## See: https://github.com/deluan/zsh-in-docker for more info
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)" -- \
-    -x \
-    -p git \
-    -p ssh-agent \
-    -p https://github.com/zsh-users/zsh-autosuggestions \
-    -p https://github.com/zsh-users/zsh-syntax-highlighting \
-    -p https://github.com/zsh-users/zsh-completions
 COPY . .
-RUN mkdir -p .ssh && chmod 700 .ssh
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
 CMD ["bash", "-c", "jupyter lab"]

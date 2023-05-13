@@ -447,7 +447,7 @@ c.NotebookApp.ip = '0.0.0.0'
 
 ## The directory to use for notebooks and kernels.
 #  Default: ''
-# c.NotebookApp.notebook_dir = ''
+c.NotebookApp.notebook_dir = '/tf/notebooks'
 
 ## Whether to open in a browser after starting.
 #                          The specific browser used is platform dependent and
@@ -921,7 +921,7 @@ c.NotebookApp.open_browser = False
 # c.MappingKernelManager.kernel_manager_class = 'jupyter_client.ioloop.IOLoopKernelManager'
 
 #  Default: ''
-c.MappingKernelManager.root_dir = '/tf/notebooks'
+# c.MappingKernelManager.root_dir = ''
 
 ## Share a single zmq.Context to talk to all my kernels
 #  See also: MultiKernelManager.shared_context
