@@ -13,10 +13,8 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - /home/rcao/repos_linux/2023-summer-main:/tf/notebooks
-      - /home/rcao/.zsh_history:/root/.zsh_history
     ports:
       - 6006:6006
       - 8888:8888
     stdin_open: true # docker run -i
     tty: true # docker run -t
-    command: zsh
