@@ -51,7 +51,7 @@ RUN python3 setup.py bdist_wheel
 ## Production Image Below
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
-RUN FETCHNODEVERSION=18.16.0 curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 RUN dnf update --disablerepo=cuda -y && \
     dnf install tensorrt-8.5.3.1-1.cuda11.8 \
                 curl \
