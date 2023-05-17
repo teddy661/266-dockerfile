@@ -97,7 +97,7 @@ RUN pip install  --no-cache-dir tensorflow \
                 bokeh \
                 seaborn \
                 aiohttp[speedups] \
-                jupyterlab \
+                jupyterlab==3.6.3 \
                 black[jupyter] \
                 matplotlib \
                 wheel \
@@ -137,13 +137,13 @@ RUN pip install  --no-cache-dir tensorflow \
                 ipywidgets \
                 jupyter_bokeh \
                 jupyter-server-proxy \
-                jedi-language-server \
-                python-lsp-server \
+                jupyterlab-lsp==4.1.0  \
+                jupyter-lsp==2.1.0 \
                 pyyaml \
                 yapf 
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
-# RUN jupyter labextension install @jupyterlab/server-proxy Not yet supported in jupyter lab 4
+RUN jupyter labextension install @jupyterlab/server-proxy Not yet supported in jupyter lab 4
 WORKDIR /root
 COPY . .
 ENV TERM=xterm-256color
