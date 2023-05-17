@@ -139,11 +139,12 @@ RUN pip install  --no-cache-dir tensorflow \
                 jupyter-server-proxy \
                 jupyterlab-lsp==4.1.0  \
                 jupyter-lsp==2.1.0 \
+                python-lsp-server[all] \
                 pyyaml \
                 yapf 
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
-RUN jupyter labextension install @jupyterlab/server-proxy Not yet supported in jupyter lab 4
+RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
 COPY . .
 ENV TERM=xterm-256color
