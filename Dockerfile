@@ -91,7 +91,10 @@ RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so \
     && mkdir -p /root/.ssh && chmod 700 /root/.ssh \
     && ln  /opt/python/py311/bin/python3.11 /opt/python/py311/bin/python
 RUN python3 -m pip install --no-cache-dir --upgrade pip
-RUN pip install  --no-cache-dir tensorflow \
+RUN pip install  --no-cache-dir \
+                tensorflow \
+                tensorflow-text \
+                tensorflow-datasets \
                 nltk \
                 ipython \
                 bokeh \
