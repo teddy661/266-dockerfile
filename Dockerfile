@@ -1,8 +1,14 @@
 FROM  nvidia/cuda:11.8.0-cudnn8-devel-rockylinux8 AS build
 SHELL ["/bin/bash", "-c"]
 ENV PY_VERSION=3.11.3
+RUN dnf install epel-release -y
+RUN /usr/bin/crb enable
 RUN dnf update --disablerepo=cuda -y
 RUN dnf install curl \
+                perl-devel \
+                libcurl-devel \
+                expat-devel \
+                gettext-devel \
                 gcc \
                 cmake \
                 openssl-devel \
@@ -20,6 +26,9 @@ RUN dnf install curl \
                 sqlite-devel \
                 #tensorrt-8.5.3.1-1.cuda11.8 \
                 gcc-toolset-11 \
+                xmlto \
+                asciidoc \
+                docbook2X \
                 gdbm-devel gdbm -y
 WORKDIR /tmp/bpython
 RUN wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tar.xz
@@ -33,10 +42,18 @@ RUN source scl_source enable gcc-toolset-11 && ./configure --enable-shared \
                 --prefix=/opt/python/py311
 RUN source scl_source enable gcc-toolset-11 && make -j 8
 RUN source scl_source enable gcc-toolset-11 && make install 
-ENV  LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
-ENV  PATH=/opt/python/py311/bin:${PATH}
+ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
+ENV PATH=/opt/python/py311/bin:${PATH}
 RUN pip3 install --upgrade pip
 RUN pip3 install wheel
+WORKDIR /tmp/bgit
+ENV G_VERSION=2.40.1
+RUN wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-${G_VERSION}.tar.xz
+RUN tar -xf git-${G_VERSION}.tar.xz
+WORKDIR /tmp/bgit/git-${G_VERSION}
+RUN source scl_source enable gcc-toolset-11 && make -j 4 prefix=/opt/git profile
+RUN source scl_source enable gcc-toolset-11 && make prefix=/opt/git PROFILE=BUILD install install-doc
+ENV PATH=/opt/git/bin:${PATH}
 WORKDIR /tmp/bxgboost
 RUN wget https://github.com/dmlc/xgboost/releases/download/v1.7.5/xgboost.tar.gz
 RUN tar -xf xgboost.tar.gz
@@ -56,9 +73,11 @@ RUN dnf update --disablerepo=cuda -y && \
     dnf install tensorrt-8.5.3.1-1.cuda11.8 \
                 curl \
                 wget \
+                libcurl-devel \
+                gettext-devel \
+                expat-devel \
                 openssl-devel \
                 openssh-server \
-                openssh-clients \
                 bzip2-devel bzip2 \
                 xz-devel xz \
                 libffi-devel \
@@ -73,17 +92,17 @@ RUN dnf update --disablerepo=cuda -y && \
                 gdbm-devel gdbm \
                 nodejs \
                 procps-ng \
-                findutils \
-                git -y && \
+                findutils -y && \
     dnf clean all
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 COPY --from=build /opt/python/py311 /opt/python/py311
+COPY --from=build /opt/git /opt/git
 COPY --from=build /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
-ENV PATH=/opt/python/py311/bin:${PATH}
+ENV PATH=/opt/git/bin:/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 ## Fix an odd bug in tensorrt
 WORKDIR /usr/local/cuda-11.8/lib64
@@ -140,8 +159,8 @@ RUN pip install  --no-cache-dir \
                 ipywidgets \
                 jupyter_bokeh \
                 jupyter-server-proxy \
-                jupyterlab-lsp==4.1.0  \
-                jupyter-lsp==2.1.0 \
+                jupyterlab-lsp==4.2.0  \
+                jupyter-lsp==2.2.0 \
                 python-lsp-server[all] \
                 pyyaml \
                 yapf 
