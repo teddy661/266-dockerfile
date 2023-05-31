@@ -119,7 +119,7 @@ RUN pip install  --no-cache-dir \
                 bokeh \
                 seaborn \
                 aiohttp[speedups] \
-                jupyterlab==3.6.3 \
+                jupyterlab==3.6.4 \
                 black[jupyter] \
                 matplotlib \
                 wheel \
