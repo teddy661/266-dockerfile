@@ -163,7 +163,9 @@ RUN pip install  --no-cache-dir \
                 jupyter-lsp==2.2.0 \
                 python-lsp-server[all] \
                 pyyaml \
-                yapf 
+                yapf \
+                nbqa \
+                ruff
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
