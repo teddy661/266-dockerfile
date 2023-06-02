@@ -47,7 +47,7 @@ ENV PATH=/opt/python/py311/bin:${PATH}
 RUN pip3 install --upgrade pip
 RUN pip3 install wheel
 WORKDIR /tmp/bgit
-ENV G_VERSION=2.40.1
+ENV G_VERSION=2.41.0
 RUN wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-${G_VERSION}.tar.xz
 RUN tar -xf git-${G_VERSION}.tar.xz
 WORKDIR /tmp/bgit/git-${G_VERSION}
@@ -114,6 +114,7 @@ RUN pip install  --no-cache-dir \
                 tensorflow \
                 tensorflow-text \
                 tensorflow-datasets \
+                numba \
                 nltk \
                 ipython \
                 bokeh \
