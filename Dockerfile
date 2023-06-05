@@ -69,6 +69,9 @@ RUN python3 setup.py bdist_wheel
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
 RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+## 
+## TensorRT drags in a bunch of dependencies that we don't need
+## tried replacing it with lean runtime, but that didn't work
 RUN dnf update --disablerepo=cuda -y && \
     dnf install tensorrt-8.5.3.1-1.cuda11.8 \
                 curl \
