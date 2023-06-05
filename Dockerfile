@@ -4,7 +4,8 @@ ENV PY_VERSION=3.11.3
 RUN dnf install epel-release -y
 RUN /usr/bin/crb enable
 RUN dnf update --disablerepo=cuda -y
-RUN dnf install curl \
+RUN dnf install \
+                curl \
                 perl-devel \
                 libcurl-devel \
                 expat-devel \
@@ -25,6 +26,7 @@ RUN dnf install curl \
                 tcl-devel tcl tk-devel tk \
                 sqlite-devel \
                 #tensorrt-8.5.3.1-1.cuda11.8 \
+                #tensorrt-8.6.0.12-1.cuda11.8 \
                 gcc-toolset-11 \
                 xmlto \
                 asciidoc \
@@ -51,8 +53,8 @@ ENV G_VERSION=2.41.0
 RUN wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-${G_VERSION}.tar.xz
 RUN tar -xf git-${G_VERSION}.tar.xz
 WORKDIR /tmp/bgit/git-${G_VERSION}
-RUN source scl_source enable gcc-toolset-11 && make -j 4 prefix=/opt/git profile
-RUN source scl_source enable gcc-toolset-11 && make prefix=/opt/git PROFILE=BUILD install install-doc
+RUN source scl_source enable gcc-toolset-11 && make -j 8 prefix=/opt/git profile
+RUN source scl_source enable gcc-toolset-11 && make -j 8 prefix=/opt/git PROFILE=BUILD install install-doc
 ENV PATH=/opt/git/bin:${PATH}
 WORKDIR /tmp/bxgboost
 RUN wget https://github.com/dmlc/xgboost/releases/download/v1.7.5/xgboost.tar.gz
@@ -172,7 +174,9 @@ RUN pip install  --no-cache-dir \
                 yapf \
                 nbqa \
                 ruff \
-                ploomber
+                ploomber \
+                evaluate \
+                rouge_score
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
