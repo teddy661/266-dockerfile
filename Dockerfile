@@ -73,7 +73,9 @@ RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 ## TensorRT drags in a bunch of dependencies that we don't need
 ## tried replacing it with lean runtime, but that didn't work
 RUN dnf update --disablerepo=cuda -y && \
-    dnf install tensorrt-8.5.3.1-1.cuda11.8 \
+    dnf install \
+                #tensorrt-8.6.0.12-1.cuda11.8 \
+                tensorrt-8.5.3.1-1.cuda11.8 \
                 curl \
                 wget \
                 libcurl-devel \
