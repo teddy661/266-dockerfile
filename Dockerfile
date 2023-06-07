@@ -117,7 +117,7 @@ RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so \
     && mkdir -p /root/.ssh && chmod 700 /root/.ssh \
     && ln  /opt/python/py311/bin/python3.11 /opt/python/py311/bin/python
 RUN python3 -m pip install --no-cache-dir --upgrade pip
-RUN pip install  --no-cache-dir \
+RUN pip3 install  --no-cache-dir \
                 tensorflow \
                 tensorflow-text \
                 tensorflow-datasets \
@@ -177,8 +177,8 @@ RUN pip install  --no-cache-dir \
                 ploomber \
                 evaluate \
                 rouge_score
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-RUN pip install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
 COPY . .
