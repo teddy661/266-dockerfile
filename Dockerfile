@@ -1,6 +1,6 @@
 FROM  nvidia/cuda:11.8.0-cudnn8-devel-rockylinux8 AS build
 SHELL ["/bin/bash", "-c"]
-ENV PY_VERSION=3.11.3
+ENV PY_VERSION=3.11.4
 RUN dnf install epel-release -y
 RUN /usr/bin/crb enable
 RUN dnf update --disablerepo=cuda -y
