@@ -78,6 +78,7 @@ RUN dnf update --disablerepo=cuda -y && \
     dnf install \
                 #tensorrt-8.6.0.12-1.cuda11.8 \
                 tensorrt-8.5.3.1-1.cuda11.8 \
+                unzip \
                 curl \
                 wget \
                 libcurl-devel \
