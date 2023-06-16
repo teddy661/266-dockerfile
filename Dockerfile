@@ -1,71 +1,3 @@
-FROM  nvidia/cuda:11.8.0-cudnn8-devel-rockylinux8 AS build
-SHELL ["/bin/bash", "-c"]
-ENV PY_VERSION=3.11.4
-RUN dnf install epel-release -y
-RUN /usr/bin/crb enable
-RUN dnf update --disablerepo=cuda -y
-RUN dnf install \
-                curl \
-                perl-devel \
-                libcurl-devel \
-                expat-devel \
-                gettext-devel \
-                gcc \
-                cmake \
-                openssl-devel \
-                bzip2-devel \
-                xz xz-devel \
-                findutils \
-                libffi-devel \
-                zlib-devel \
-                wget \
-                make \
-                ncurses ncurses-devel \
-                readline-devel \
-                uuid \
-                tcl-devel tcl tk-devel tk \
-                sqlite-devel \
-                #tensorrt-8.5.3.1-1.cuda11.8 \
-                #tensorrt-8.6.0.12-1.cuda11.8 \
-                gcc-toolset-11 \
-                xmlto \
-                asciidoc \
-                docbook2X \
-                gdbm-devel gdbm -y
-WORKDIR /tmp/bpython
-RUN wget https://www.python.org/ftp/python/${PY_VERSION}/Python-${PY_VERSION}.tar.xz
-RUN tar -xf  Python-${PY_VERSION}.tar.xz
-WORKDIR /tmp/bpython/Python-${PY_VERSION}
-RUN source scl_source enable gcc-toolset-11 && ./configure --enable-shared \
-                --enable-optimizations \ 
-                --enable-ipv6 \ 
-                --with-lto=full \
-                --with-ensurepip=upgrade \
-                --prefix=/opt/python/py311
-RUN source scl_source enable gcc-toolset-11 && make -j 8
-RUN source scl_source enable gcc-toolset-11 && make install 
-ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
-ENV PATH=/opt/python/py311/bin:${PATH}
-RUN pip3 install --upgrade pip
-RUN pip3 install wheel
-WORKDIR /tmp/bgit
-ENV G_VERSION=2.41.0
-RUN wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-${G_VERSION}.tar.xz
-RUN tar -xf git-${G_VERSION}.tar.xz
-WORKDIR /tmp/bgit/git-${G_VERSION}
-RUN source scl_source enable gcc-toolset-11 && make -j 8 prefix=/opt/git profile
-RUN source scl_source enable gcc-toolset-11 && make -j 8 prefix=/opt/git PROFILE=BUILD install install-doc
-ENV PATH=/opt/git/bin:${PATH}
-WORKDIR /tmp/bxgboost
-RUN wget https://github.com/dmlc/xgboost/releases/download/v1.7.5/xgboost.tar.gz
-RUN tar -xf xgboost.tar.gz
-WORKDIR /tmp/bxgboost/xgboost
-RUN mkdir build
-WORKDIR /tmp/bxgboost/xgboost/build
-RUN source scl_source enable gcc-toolset-11 && cmake .. -DUSE_CUDA=ON -DBUILD_WITH_CUDA_CUB=ON
-RUN source scl_source enable gcc-toolset-11 && make -j 8
-WORKDIR /tmp/bxgboost/xgboost/python-package
-RUN python3 setup.py bdist_wheel 
 ##
 ## Production Image Below
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
@@ -106,9 +38,9 @@ RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
-COPY --from=build /opt/python/py311 /opt/python/py311
-COPY --from=build /opt/git /opt/git
-COPY --from=build /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+COPY --from=ebrown/python:3.11 /opt/python/py311 /opt/python/py311
+COPY --from=ebrown/git:2.41.0 /opt/git /opt/git
+COPY --from=ebrown/xgboost:1.7.5 /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/git/bin:/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
@@ -118,11 +50,17 @@ RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so \
     && mkdir -p /root/.ssh && chmod 700 /root/.ssh \
     && ln  /opt/python/py311/bin/python3.11 /opt/python/py311/bin/python
 RUN python3 -m pip install --no-cache-dir --upgrade pip
-RUN pip3 install  --no-cache-dir \
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+RUN pip3 install --no-cache-dir \
                 tensorflow \
                 tensorflow-text \
                 tensorflow-datasets \
-                git+https://github.com/keras-team/keras-nlp.git --upgrade \
+                keras-nlp \
+                spacy \
+                spacy-lookups-data \
+                sentence-transformers \
+                datasets \
                 numba \
                 nltk \
                 ipython \
@@ -179,8 +117,6 @@ RUN pip3 install  --no-cache-dir \
                 ploomber \
                 evaluate \
                 rouge_score
-RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
 COPY . .
