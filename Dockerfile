@@ -122,7 +122,7 @@ RUN pip3 install  --no-cache-dir \
                 tensorflow \
                 tensorflow-text \
                 tensorflow-datasets \
-                keras-nlp \
+                git+https://github.com/keras-team/keras-nlp.git --upgrade \
                 numba \
                 nltk \
                 ipython \
