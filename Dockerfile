@@ -48,11 +48,18 @@ ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 WORKDIR /usr/local/cuda-11.8/lib64
 RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so \
     && mkdir -p /root/.ssh && chmod 700 /root/.ssh \
-    && ln  /opt/python/py311/bin/python3.11 /opt/python/py311/bin/python
+    && ln  /opt/python/py311/bin/python3.11 /opt/python/py311/bin/python \
+    && ln /opt/python/py311/bin/pip3 /opt/python/py311/bin/pip
 RUN python3 -m pip install --no-cache-dir --upgrade pip
+RUN pip3 install --no-cache-dir \
+                certifi \
+                networkx \
+                Pillow 
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
+                # tensorflow requires numpy < 1.24
+                # update to pandas-stubs requires numpy > 1.24
                 tensorflow \
                 tensorflow-text \
                 tensorflow-datasets \
@@ -75,7 +82,6 @@ RUN pip3 install --no-cache-dir \
                 papermill[all] \
                 statsmodels \
                 psutil \
-                networkx \
                 mypy \
                 pandas \
                 pyarrow \
@@ -116,7 +122,8 @@ RUN pip3 install --no-cache-dir \
                 ruff \
                 ploomber \
                 evaluate \
-                rouge_score
+                rouge_score \
+                pipdeptree
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
 COPY . .
