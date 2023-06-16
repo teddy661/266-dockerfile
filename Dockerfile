@@ -122,6 +122,7 @@ RUN pip3 install  --no-cache-dir \
                 tensorflow \
                 tensorflow-text \
                 tensorflow-datasets \
+                keras-nlp \
                 numba \
                 nltk \
                 ipython \
