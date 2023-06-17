@@ -67,7 +67,8 @@ RUN pip3 install --no-cache-dir \
                 spacy \
                 spacy-lookups-data \
                 sentence-transformers \
-                datasets \
+                datasets==2.10.0 \
+                git+https://github.com/google-research/bleurt.git \
                 numba \
                 nltk \
                 ipython \
