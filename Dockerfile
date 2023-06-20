@@ -2,7 +2,7 @@
 ## Production Image Below
 FROM  ebrown/python:3.11 as built_python
 FROM ebrown/git:latest as built_git
-FROM ebrown/xgboost:1.7.5 as built_xgboost
+FROM ebrown/xgboost:1.7.6 as built_xgboost
 FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
 RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
@@ -43,7 +43,7 @@ RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 COPY --from=built_python /opt/python/py311 /opt/python/py311
 COPY --from=built_git /opt/git /opt/git
-COPY --from=built_xgboost /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+COPY --from=built_xgboost /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/git/bin:/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
@@ -59,7 +59,7 @@ RUN pip3 install --no-cache-dir \
                 networkx \
                 Pillow 
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.5-cp311-cp311-linux_x86_64.whl
+RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
                 # tensorflow requires numpy < 1.24
                 # update to pandas-stubs requires numpy > 1.24
