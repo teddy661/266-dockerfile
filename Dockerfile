@@ -57,7 +57,8 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip
 RUN pip3 install --no-cache-dir \
                 certifi \
                 networkx \
-                Pillow 
+                Pillow \
+                numpy==1.23.5
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
