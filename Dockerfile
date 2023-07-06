@@ -58,13 +58,13 @@ RUN pip3 install --no-cache-dir \
                 certifi \
                 networkx \
                 Pillow \
-                numpy==1.23.5
+                numpy==1.24.3
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
-                # tensorflow requires numpy < 1.24
+                # tensorflow requires numpy <= 1.24.3
                 # update to pandas-stubs requires numpy > 1.24
-                tensorflow \
+                tensorflow==2.12.1 \
                 tensorflow-text \
                 tensorflow-datasets \
                 keras-nlp \
@@ -74,13 +74,12 @@ RUN pip3 install --no-cache-dir \
                 #Pin datasets to 2.10.0 becuase of bug in evaluate
                 datasets==2.10.0 \
                 git+https://github.com/google-research/bleurt.git \
-                numba \
                 nltk \
                 ipython \
                 bokeh \
                 seaborn \
                 aiohttp[speedups] \
-                jupyterlab==3.6.4 \
+                jupyterlab==3.6.5 \
                 black[jupyter] \
                 matplotlib \
                 wheel \
