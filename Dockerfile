@@ -128,7 +128,8 @@ RUN pip3 install --no-cache-dir \
                 ploomber \
                 evaluate \
                 rouge_score \
-                pipdeptree
+                pipdeptree \
+                hydra-core
 RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
 COPY . .
