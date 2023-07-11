@@ -21,6 +21,7 @@ RUN dnf update --disablerepo=cuda -y && \
                 expat-devel \
                 openssl-devel \
                 openssh-server \
+                openssh-clients \
                 bzip2-devel bzip2 \
                 xz-devel xz \
                 libffi-devel \
