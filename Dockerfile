@@ -80,7 +80,7 @@ RUN pip3 install --no-cache-dir \
                 bokeh \
                 seaborn \
                 aiohttp[speedups] \
-                jupyterlab==3.6.5 \
+                jupyterlab \
                 black[jupyter] \
                 matplotlib \
                 wheel \
@@ -119,9 +119,6 @@ RUN pip3 install --no-cache-dir \
                 ipywidgets \
                 jupyter_bokeh \
                 jupyter-server-proxy \
-                jupyterlab-lsp==4.2.0  \
-                jupyter-lsp==2.2.0 \
-                python-lsp-server[all] \
                 pyyaml \
                 yapf \
                 nbqa \
@@ -131,7 +128,6 @@ RUN pip3 install --no-cache-dir \
                 rouge_score \
                 pipdeptree \
                 hydra-core
-RUN jupyter labextension install @jupyterlab/server-proxy
 WORKDIR /root
 COPY . .
 ENV TERM=xterm-256color
