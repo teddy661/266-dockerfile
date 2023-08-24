@@ -11,8 +11,15 @@ RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 ## tried replacing it with lean runtime, but that didn't work
 RUN dnf update --disablerepo=cuda -y && \
     dnf install \
-                libnvinfer8-8.6.1.6-1.cuda11.8 \
-                libnvinfer-plugin8-8.6.1.6-1.cuda11.8 \
+                # tensorrt-8.6.0.12-1.cuda11.8 \
+                cuda-command-line-tools-11-8 \
+                cuda-cudart-devel-11-8 \
+                cuda-nvcc-11-8 \
+                cuda-cupti-11-8 \
+                cuda-nvprune-11-8 \
+                cuda-nvrtc-11-8 \
+                libnvinfer-plugin8-8.6.0.12-1.cuda11.8 \
+                libnvinfer8-8.6.0.12-1.cuda11.8 \
                 unzip \
                 curl \
                 wget \
@@ -121,6 +128,7 @@ RUN pip3 install --no-cache-dir \
                 ipywidgets \
                 jupyter_bokeh \
                 jupyter-server-proxy \
+                jupyter_http_over_ws \
                 pyyaml \
                 yapf \
                 nbqa \
