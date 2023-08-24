@@ -1,9 +1,9 @@
 ##
 ## Production Image Below
-FROM  ebrown/python:3.11 as built_python
+FROM ebrown/python:3.11 as built_python
 FROM ebrown/git:latest as built_git
 FROM ebrown/xgboost:1.7.6 as built_xgboost
-FROM  nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
 RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 ## 
@@ -11,8 +11,8 @@ RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
 ## tried replacing it with lean runtime, but that didn't work
 RUN dnf update --disablerepo=cuda -y && \
     dnf install \
-                #tensorrt-8.6.0.12-1.cuda11.8 \
-                tensorrt-8.5.3.1-1.cuda11.8 \
+                libnvinfer8-8.6.1.6-1.cuda11.8 \
+                libnvinfer-plugin8-8.6.1.6-1.cuda11.8 \
                 unzip \
                 curl \
                 wget \
@@ -59,7 +59,10 @@ RUN pip3 install --no-cache-dir \
                 certifi \
                 networkx \
                 Pillow \
-                numpy==1.24.3
+                numpy==1.24.3 \
+                wheel \
+                cmake \
+                setuptools 
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
@@ -83,7 +86,6 @@ RUN pip3 install --no-cache-dir \
                 jupyterlab \
                 black[jupyter] \
                 matplotlib \
-                wheel \
                 blake3 \
                 papermill[all] \
                 statsmodels \
