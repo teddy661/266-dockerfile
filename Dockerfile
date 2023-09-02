@@ -130,7 +130,7 @@ RUN pip3 install --no-cache-dir \
                 jupyter-collaboration \
                 pyyaml \
                 yapf \
-                nbqa \
+                nbqa[toolchain] \
                 ruff \
                 ploomber \
                 evaluate[template] \
