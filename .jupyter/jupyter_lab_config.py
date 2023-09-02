@@ -259,6 +259,11 @@ c = get_config()  #noqa
 #  See also: JupyterApp.config_file_name
 # c.LabServerApp.config_file_name = ''
 
+## Whether getting a relative (False) or absolute (True) path when copying a
+#  path.
+#  Default: False
+# c.LabServerApp.copy_absolute_path = False
+
 ## Extra paths to look for federated JupyterLab extensions
 #  Default: []
 # c.LabServerApp.extra_labextensions_path = []
@@ -439,7 +444,12 @@ c = get_config()  #noqa
 #  Default: 'jupyterlab.handlers.announcements.CheckForUpdate'
 # c.LabApp.check_for_updates_class = 'jupyterlab.handlers.announcements.CheckForUpdate'
 
-## Whether to enable collaborative mode.
+## To enable real-time collaboration, you must install the extension `jupyter_collaboration`.
+#          You can install it using pip for example:
+#  
+#              python -m pip install jupyter_collaboration
+#  
+#          This flag is now deprecated and will be removed in JupyterLab v5.
 #  Default: False
 # c.LabApp.collaborative = False
 
@@ -450,6 +460,11 @@ c = get_config()  #noqa
 ## Specify a config file to load.
 #  See also: JupyterApp.config_file_name
 # c.LabApp.config_file_name = ''
+
+## Whether getting a relative (False) or absolute (True) path when copying a
+#  path.
+#  Default: False
+# c.LabApp.copy_absolute_path = False
 
 ## Whether to start the app in core mode. In this mode, JupyterLab
 #          will run using the JavaScript assets that are within the installed
@@ -470,9 +485,15 @@ c = get_config()  #noqa
 #  Default: False
 # c.LabApp.dev_mode = False
 
-## Whether to expose the global app instance to browser via window.jupyterlab
+## Whether to expose the global app instance to browser via window.jupyterapp
 #  Default: False
 # c.LabApp.expose_app_in_browser = False
+
+## The extension manager factory to use. The default options are:
+#          "readonly" for a manager without installation capability or "pypi" for
+#          a manager using PyPi.org and pip to install extensions.
+#  Default: 'pypi'
+# c.LabApp.extension_manager = 'pypi'
 
 ## Whether to load prebuilt extensions in dev mode. This may be
 #          useful to run and test prebuilt extensions in development installs of
@@ -485,12 +506,6 @@ c = get_config()  #noqa
 ## Extra paths to look for federated JupyterLab extensions
 #  Default: []
 # c.LabApp.extra_labextensions_path = []
-
-## Whether to skip loading styles for disabled prebuilt extensions.
-#          This will be the default behavior starting with JupyterLab 4.0
-#          (and this flag will be removed).
-#  Default: False
-# c.LabApp.future_skip_styles_for_disabled = False
 
 ## Generate default config file.
 #  See also: JupyterApp.generate_config
@@ -582,6 +597,10 @@ c = get_config()  #noqa
 ## Instead of starting the Application, dump configuration to stdout (as JSON)
 #  See also: Application.show_config_json
 # c.LabApp.show_config_json = False
+
+## Whether to skip the initial install and JS build of the app in dev mode
+#  Default: False
+# c.LabApp.skip_dev_build = False
 
 ## Splice source packages into app directory.
 #  Default: False
@@ -879,8 +898,8 @@ c.ServerApp.ip = '0.0.0.0'
 # c.ServerApp.kernel_spec_manager_class = 'builtins.object'
 
 ## The kernel websocket connection class to use.
-#  Default: 'jupyter_server.services.kernels.connection.channels.ZMQChannelsWebsocketConnection'
-# c.ServerApp.kernel_websocket_connection_class = 'jupyter_server.services.kernels.connection.channels.ZMQChannelsWebsocketConnection'
+#  Default: 'jupyter_server.services.kernels.connection.base.BaseKernelWebsocketConnection'
+# c.ServerApp.kernel_websocket_connection_class = 'jupyter_server.services.kernels.connection.base.BaseKernelWebsocketConnection'
 
 ## DEPRECATED. Use ZMQChannelsWebsocketConnection.kernel_ws_protocol
 #  Default: ''
@@ -1030,6 +1049,13 @@ c.ServerApp.root_dir = '/tf/notebooks'
 #              See the tornado docs for details.
 #  Default: {}
 # c.ServerApp.ssl_options = {}
+
+## Paths to set up static files as immutable.
+#  
+#  This allow setting up the cache control of static files as immutable. It
+#  should be used for static file named with a hash for instance.
+#  Default: []
+# c.ServerApp.static_immutable_cache = []
 
 ## Supply overrides for terminado. Currently only supports "shell_command".
 #  Default: {}

@@ -5,10 +5,12 @@ FROM ebrown/git:latest as built_git
 FROM ebrown/xgboost:1.7.6 as built_xgboost
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
-RUN curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+RUN dnf install https://rpm.nodesource.com/pub_18.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y
 ## 
 ## TensorRT drags in a bunch of dependencies that we don't need
 ## tried replacing it with lean runtime, but that didn't work
+## The below code appears to resolve that issue.
+##
 RUN dnf update --disablerepo=cuda -y && \
     dnf install \
                 # tensorrt-8.6.0.12-1.cuda11.8 \
@@ -125,13 +127,13 @@ RUN pip3 install --no-cache-dir \
                 jupyter_bokeh \
                 jupyter-server-proxy \
                 jupyter_http_over_ws \
+                jupyter-collaboration \
                 pyyaml \
                 yapf \
                 nbqa \
                 ruff \
                 ploomber \
-                evaluate \
-                rouge_score \
+                evaluate[template] \
                 pipdeptree \
                 hydra-core
 WORKDIR /root
