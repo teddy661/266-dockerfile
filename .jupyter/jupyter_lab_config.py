@@ -673,6 +673,11 @@ c = get_config()  #noqa
 #  Default: False
 # c.ServerApp.allow_credentials = False
 
+## Whether or not to allow external kernels, whose connection files are placed in
+#  external_connection_dir.
+#  Default: False
+# c.ServerApp.allow_external_kernels = False
+
 ## Set the Access-Control-Allow-Origin header
 #  
 #          Use '*' to allow any origin to access your server.
@@ -821,6 +826,14 @@ c.ServerApp.allow_root = True
 #          with the full knowledge of what that implies.
 #  Default: False
 # c.ServerApp.disable_check_xsrf = False
+
+## The directory to look at for external kernel connection files, if
+#  allow_external_kernels is True. Defaults to Jupyter
+#  runtime_dir/external_kernels. Make sure that this directory is not filled with
+#  left-over connection files, that could result in unnecessary kernel manager
+#  creations.
+#  Default: None
+# c.ServerApp.external_connection_dir = None
 
 ## handlers that should be loaded at higher priority than the default services
 #  Default: []

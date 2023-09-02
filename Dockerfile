@@ -5,7 +5,6 @@ FROM ebrown/git:latest as built_git
 FROM ebrown/xgboost:1.7.6 as built_xgboost
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
-RUN dnf install https://rpm.nodesource.com/pub_18.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y
 ## 
 ## TensorRT drags in a bunch of dependencies that we don't need
 ## tried replacing it with lean runtime, but that didn't work
@@ -43,10 +42,14 @@ RUN dnf update --disablerepo=cuda -y && \
                 sqlite-devel \
                 graphviz \
                 gdbm-devel gdbm \
-                nodejs \
                 procps-ng \
                 findutils -y && \
     dnf clean all
+WORKDIR /opt/nodejs
+RUN curl https://nodejs.org/dist/v18.17.1/node-v18.17.1-linux-x64.tar.xz | xzcat | tar -xf -
+ENV PATH=/opt/nodejs/node-v18.17.1-linux-x64/bin:${PATH}
+RUN npm install -g npm && \
+    npm install -g yarn
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
