@@ -70,6 +70,7 @@ RUN pip3 install --no-cache-dir \
                 networkx \
                 Pillow \
                 numpy==1.24.3 \
+                bottleneck \
                 cmake 
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
