@@ -46,8 +46,8 @@ RUN dnf update --disablerepo=cuda -y && \
                 findutils -y && \
     dnf clean all
 WORKDIR /opt/nodejs
-RUN curl https://nodejs.org/dist/v18.17.1/node-v18.17.1-linux-x64.tar.xz | xzcat | tar -xf -
-ENV PATH=/opt/nodejs/node-v18.17.1-linux-x64/bin:${PATH}
+RUN curl https://nodejs.org/dist/v18.18.0/node-v18.18.0-linux-x64.tar.xz | xzcat | tar -xf -
+ENV PATH=/opt/nodejs/node-v18.18.0-linux-x64/bin:${PATH}
 RUN npm install -g npm && \
     npm install -g yarn
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
@@ -69,7 +69,7 @@ RUN pip3 install --no-cache-dir \
                 certifi \
                 networkx \
                 Pillow \
-                numpy==1.24.3 \
+                numpy==1.26.0 \
                 bottleneck \
                 cmake 
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
@@ -77,7 +77,7 @@ RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
                 # tensorflow requires numpy <= 1.24.3
                 # update to pandas-stubs requires numpy > 1.24
-                tensorflow==2.12.1 \
+                tensorflow==2.14.0 \
                 tensorflow-text \
                 tensorflow-datasets \
                 keras-nlp \
