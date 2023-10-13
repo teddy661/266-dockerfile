@@ -136,7 +136,7 @@ RUN pip3 install --no-cache-dir \
                 yapf \
                 nbqa[toolchain] \
                 ruff \
-                ploomber \
+#                ploomber \
                 evaluate[template] \
                 pipdeptree \
                 hydra-core
