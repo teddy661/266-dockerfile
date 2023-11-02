@@ -2,7 +2,7 @@
 ## Production Image Below
 FROM ebrown/python:3.11 as built_python
 FROM ebrown/git:latest as built_git
-FROM ebrown/xgboost:1.7.6 as built_xgboost
+FROM ebrown/xgboost:2.0.1 as built_xgboost
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-rockylinux8 AS prod
 SHELL ["/bin/bash", "-c"]
 ## 
@@ -46,8 +46,11 @@ RUN dnf update --disablerepo=cuda -y && \
                 findutils -y && \
     dnf clean all
 WORKDIR /opt/nodejs
-RUN curl https://nodejs.org/dist/v18.18.0/node-v18.18.0-linux-x64.tar.xz | xzcat | tar -xf -
-ENV PATH=/opt/nodejs/node-v18.18.0-linux-x64/bin:${PATH}
+ARG INSTALL_NODE_VERSION=20.9.0
+RUN curl -L https://nodejs.org/dist/v${INSTALL_NODE_VERSION}/node-v${INSTALL_NODE_VERSION}-linux-x64.tar.xz | xzcat | tar -xf -
+WORKDIR /opt/nvim
+RUN curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar -zxf -
+ENV PATH=/opt/nodejs/node-v${INSTALL_NODE_VERSION}-linux-x64/bin:/opt/nvim/nvim-linux64/bin:${PATH}
 RUN npm install -g npm && \
     npm install -g yarn
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
@@ -56,7 +59,8 @@ RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 COPY --from=built_python /opt/python/py311 /opt/python/py311
 COPY --from=built_git /opt/git /opt/git
-COPY --from=built_xgboost /tmp/bxgboost/xgboost/python-package/dist/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
+ARG XGB_VERSION=2.0.1
+COPY --from=built_xgboost /tmp/bxgboost/xgboost/python-package/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/git/bin:/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
@@ -64,19 +68,15 @@ ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 WORKDIR /usr/local/cuda-11.8/lib64
 RUN ln -s libnvrtc.so.11.8.89  libnvrtc.so \
     && mkdir -p /root/.ssh && chmod 700 /root/.ssh 
-RUN python3 -m pip install --no-cache-dir --upgrade pip
+RUN python3 -m pip install --no-cache-dir --upgrade pip && pip3 install --no-cache-dir -U setuptools wheel
 RUN pip3 install --no-cache-dir \
                 certifi \
                 networkx \
-                Pillow \
-                numpy==1.26.0 \
-                bottleneck \
+                numpy==1.26.1 \
                 cmake 
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-RUN pip3 install --no-cache-dir /tmp/xgboost-1.7.6-cp311-cp311-linux_x86_64.whl
+RUN pip3 install --no-cache-dir /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
-                # tensorflow requires numpy <= 1.24.3
-                # update to pandas-stubs requires numpy > 1.24
                 tensorflow==2.14.0 \
                 tensorflow-text \
                 tensorflow-datasets \
@@ -100,9 +100,10 @@ RUN pip3 install --no-cache-dir \
                 statsmodels \
                 psutil \
                 mypy \
-                pandas \
+                "pandas[performance, excel, computation, plot, output_formatting, html, parquet, hdf5]" \
+                tables \
                 pyarrow \
-                polars[all] \
+                "polars[numpy, pandas, pyarrow, timezone]" \
                 openpyxl \
                 apsw \
                 pydot \
@@ -139,7 +140,10 @@ RUN pip3 install --no-cache-dir \
 #                ploomber \
                 evaluate[template] \
                 pipdeptree \
-                hydra-core
+                hydra-core \
+                bottleneck \ 
+                pytest \
+                zstandard
 WORKDIR /root
 COPY . .
 ENV TERM=xterm-256color
