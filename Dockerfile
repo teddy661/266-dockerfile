@@ -75,6 +75,7 @@ RUN pip3 install torch torchvision torchaudio --index-url https://download.pytor
 RUN pip3 install --no-cache-dir /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
                 tensorflow==2.15.0 \
+                Pillow==10.1.0 \
                 tensorflow-text \
                 tensorflow-datasets \
                 keras-nlp \
@@ -82,7 +83,8 @@ RUN pip3 install --no-cache-dir \
                 spacy-lookups-data \
                 sentence-transformers \
                 #Pin datasets to 2.10.0 becuase of bug in evaluate
-                datasets==2.10.0 \
+                #unpinned
+                # datasets \
                 git+https://github.com/google-research/bleurt.git \
                 nltk \
                 ipython \
@@ -116,15 +118,15 @@ RUN pip3 install --no-cache-dir \
                 lxml \
                 isort \
                 opencv-contrib-python-headless \
-                wordcloud \
-                dask[complete] \
+                # wordcloud \
+                # dask[complete] \ Not used
                 ipyparallel \
-                mlxtend \
+                # mlxtend \
                 gensim \
                 transformers \
-                openai[wandb] \
-                wandb \
-                tiktoken \
+                # openai[wandb] \
+                # wandb \
+                # tiktoken \
                 sentencepiece \
                 ipywidgets \
                 jupyter_bokeh \
@@ -135,8 +137,9 @@ RUN pip3 install --no-cache-dir \
                 yapf \
                 nbqa[toolchain] \
                 ruff \
-                ploomber \
-                evaluate[template] \
+                # Removed pinned to old notebook version
+                # ploomber \ 
+                # evaluate[template] \
                 pipdeptree \
                 hydra-core \
                 bottleneck \ 
