@@ -46,7 +46,7 @@ RUN dnf update --disablerepo=cuda -y && \
                 findutils -y && \
     dnf clean all
 WORKDIR /opt/nodejs
-ARG INSTALL_NODE_VERSION=20.9.0
+ARG INSTALL_NODE_VERSION=20.10.0
 RUN curl -L https://nodejs.org/dist/v${INSTALL_NODE_VERSION}/node-v${INSTALL_NODE_VERSION}-linux-x64.tar.xz | xzcat | tar -xf -
 WORKDIR /opt/nvim
 RUN curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar -zxf -
@@ -91,8 +91,10 @@ RUN pip3 install --no-cache-dir \
                 bokeh \
                 seaborn \
                 aiohttp[speedups] \
-                jupyterlab \
-                jupyter_server==2.10.0 \
+                jupyterlab>=4.0.9 \
+                jupyterlab-lsp==5.0.1 \
+                jupyter-lsp==2.2.1 \
+                jupyter_server \
                 black[jupyter] \
                 matplotlib \
                 blake3 \
