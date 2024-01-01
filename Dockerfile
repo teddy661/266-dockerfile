@@ -86,7 +86,8 @@ RUN pip3 install --no-cache-dir \
                 spacy-lookups-data \
                 sentence-transformers \
                 #Pin datasets to 2.10.0 becuase of bug in evaluate
-                datasets==2.10.0 \
+                #datasets==2.10.0 \
+                datasets \
                 git+https://github.com/google-research/bleurt.git \
                 nltk \
                 ipython \
