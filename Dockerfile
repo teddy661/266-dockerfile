@@ -2,15 +2,18 @@
 ## Production Image Below
 FROM ebrown/python:3.11 as built_python
 FROM ebrown/git:latest as built_git
-FROM ebrown/xgboost:2.0.1 as built_xgboost
-FROM nvidia/cuda:12.2.2-cudnn8-runtime-rockylinux8 AS prod
+FROM ebrown/xgboost:2.0.3 as built_xgboost
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-rockylinux8 AS base
 SHELL ["/bin/bash", "-c"]
 ## 
 ## TensorRT drags in a bunch of dependencies that we don't need
 ## tried replacing it with lean runtime, but that didn't work
 ## The below code appears to resolve that issue.
 ##
-RUN dnf update --disablerepo=cuda -y && \
+RUN yum install dnf-plugins-core -y && \
+    dnf install epel-release -y && \
+    /usr/bin/crb enable -y && \
+    dnf --disablerepo=cuda update -y && \
     dnf install \
                 # tensorrt-8.6.0.12-1.cuda11.8 \
                 cuda-command-line-tools-12-2-12.2.2-1 \
@@ -36,46 +39,46 @@ RUN dnf update --disablerepo=cuda -y && \
                 zlib-devel \
                 ncurses ncurses-devel \
                 readline-devel \
-                uuid \
-                tcl-devel tcl \
-                tk-devel tk \
+                libgfortran \
+                uuid uuid-devel \
+                tcl-devel tcl\
+                tk-devel tk\
                 sqlite-devel \
                 graphviz \
                 gdbm-devel gdbm \
                 procps-ng \
                 findutils -y && \
-    dnf clean all
-WORKDIR /opt/nodejs
+                dnf clean all;
 ARG INSTALL_NODE_VERSION=20.10.0
-RUN curl -L https://nodejs.org/dist/v${INSTALL_NODE_VERSION}/node-v${INSTALL_NODE_VERSION}-linux-x64.tar.xz | xzcat | tar -xf -
-WORKDIR /opt/nvim
-RUN curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar -zxf -
+RUN mkdir /opt/nodejs && \
+    cd /opt/nodejs && \
+    curl -L https://nodejs.org/dist/v${INSTALL_NODE_VERSION}/node-v${INSTALL_NODE_VERSION}-linux-x64.tar.xz | xzcat | tar -xf - && \
+        PATH=/opt/nodejs/node-v${INSTALL_NODE_VERSION}-linux-x64/bin:${PATH} && \
+        npm install -g npm && npm install -g yarn
+RUN mkdir /opt/nvim && \
+    cd /opt/nvim && \
+    curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar -zxf - 
 ENV PATH=/opt/nodejs/node-v${INSTALL_NODE_VERSION}-linux-x64/bin:/opt/nvim/nvim-linux64/bin:${PATH}
-RUN npm install -g npm && \
-    npm install -g yarn
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
     && ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 \
     && ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 COPY --from=built_python /opt/python/py311 /opt/python/py311
 COPY --from=built_git /opt/git /opt/git
-ARG XGB_VERSION=2.0.1
-COPY --from=built_xgboost /tmp/bxgboost/xgboost/python-package/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
+ARG XGB_VERSION=2.0.3
+COPY --from=built_xgboost /tmp/bxgboost/xgboost-${XGB_VERSION}/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
 ENV LD_LIBRARY_PATH=/opt/python/py311/lib:${LD_LIBRARY_PATH}
 ENV PATH=/opt/git/bin:/opt/python/py311/bin:${PATH}
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh 
-RUN python3 -m pip install --no-cache-dir --upgrade pip && pip3 install --no-cache-dir -U setuptools wheel
+WORKDIR /tmp
+COPY installmkl.sh ./installmkl.sh
+COPY numpy-1.26.2-cp311-cp311-linux_x86_64.whl ./numpy-1.26.2-cp311-cp311-linux_x86_64.whl
+COPY scipy-1.11.4-cp311-cp311-linux_x86_64.whl ./scipy-1.11.4-cp311-cp311-linux_x86_64.whl
+RUN ./installmkl.sh
+RUN pip3 install --no-cache-dir /tmp/numpy-1.26.2-cp311-cp311-linux_x86_64.whl /tmp/scipy-1.11.4-cp311-cp311-linux_x86_64.whl /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
 RUN pip3 install --no-cache-dir \
-                certifi \
-                networkx \
-                numpy==1.26.2 \
-                cmake 
-RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-RUN pip3 install --no-cache-dir /tmp/xgboost-${XGB_VERSION}-py3-none-linux_x86_64.whl
-RUN pip3 install --no-cache-dir \
-                tensorflow==2.15.0 \
-                Pillow==10.1.0 \
+                tensorflow==2.15.0.post1 \
+                Pillow \
                 tensorflow-text \
                 tensorflow-datasets \
                 keras-nlp \
@@ -83,8 +86,7 @@ RUN pip3 install --no-cache-dir \
                 spacy-lookups-data \
                 sentence-transformers \
                 #Pin datasets to 2.10.0 becuase of bug in evaluate
-                #unpinned
-                # datasets \
+                datasets==2.10.0 \
                 git+https://github.com/google-research/bleurt.git \
                 nltk \
                 ipython \
@@ -105,7 +107,7 @@ RUN pip3 install --no-cache-dir \
                 "pandas[performance, excel, computation, plot, output_formatting, html, parquet, hdf5]" \
                 tables \
                 pyarrow \
-                "polars[numpy, pandas, pyarrow, timezone]" \
+                "polars[all]" \
                 openpyxl \
                 apsw \
                 pydot \
@@ -114,21 +116,20 @@ RUN pip3 install --no-cache-dir \
                 pydotplus \
                 graphviz \
                 beautifulsoup4 \
+                scikit-learn-intelex \
                 scikit-learn \
                 scikit-image \
                 sklearn-pandas \
                 lxml \
                 isort \
                 opencv-contrib-python-headless \
-                # wordcloud \
-                # dask[complete] \ Not used
                 ipyparallel \
-                # mlxtend \
+                mlxtend \
                 gensim \
                 transformers \
-                # openai[wandb] \
-                # wandb \
-                # tiktoken \
+                openai \
+                wandb \
+                tiktoken \
                 sentencepiece \
                 ipywidgets \
                 jupyter_bokeh \
@@ -139,16 +140,24 @@ RUN pip3 install --no-cache-dir \
                 yapf \
                 nbqa[toolchain] \
                 ruff \
-                # Removed pinned to old notebook version
-                # ploomber \ 
-                # evaluate[template] \
+                evaluate[template] \
                 pipdeptree \
                 hydra-core \
                 bottleneck \ 
                 pytest \
-                zstandard
+                zstandard \
+                cloudpickle \
+                connectorx \
+                deltalake \
+                gevent \
+                xlsx2csv \
+                sqlalchemy 
+
 WORKDIR /root
 COPY . .
+COPY entrypoint.sh /usr/local/bin
+RUN chmod 755 /usr/local/bin/entrypoint.sh
 ENV TERM=xterm-256color
 ENV SHELL=/bin/bash
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bash", "-c", "jupyter lab"]
