@@ -1,4 +1,4 @@
-authorized_keys
-nlp-gpu-jupyter-private-key.ppk
-nlp-gpu-jupyter-public-key
-run266.ps1
+numpy-1.26.4-cp311-cp311-linux_x86_64.whl
+scipy-1.12.0-cp311-cp311-linux_x86_64.whl
+xgboost-2.0.3-py3-none-linux_x86_64.whl
+

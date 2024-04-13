@@ -49,7 +49,7 @@ RUN yum install dnf-plugins-core -y && \
                 procps-ng \
                 findutils -y && \
                 dnf clean all;
-ARG INSTALL_NODE_VERSION=20.10.0
+ARG INSTALL_NODE_VERSION=20.12.0
 RUN mkdir /opt/nodejs && \
     cd /opt/nodejs && \
     curl -L https://nodejs.org/dist/v${INSTALL_NODE_VERSION}/node-v${INSTALL_NODE_VERSION}-linux-x64.tar.xz | xzcat | tar -xf - && \
@@ -57,7 +57,7 @@ RUN mkdir /opt/nodejs && \
         npm install -g npm && npm install -g yarn
 RUN mkdir /opt/nvim && \
     cd /opt/nvim && \
-    curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar -zxf - 
+    curl -L https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar -zxf -
 ENV PATH=/opt/nodejs/node-v${INSTALL_NODE_VERSION}-linux-x64/bin:/opt/nvim/nvim-linux64/bin:${PATH}
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa \
     && ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa \
